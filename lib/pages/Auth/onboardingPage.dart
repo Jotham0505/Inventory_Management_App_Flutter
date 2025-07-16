@@ -37,41 +37,33 @@ class OnboardingPage extends StatelessWidget {
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 20),
-        ElevatedButton(
-          onPressed: () {
-            // Navigate to the next page or perform an action
-          },
-          child: const Text(
-            'Sign Up',
-            style: TextStyle(
-              color: Colors.black,
-              fontFamily: 'Epilogue',
+        TextButton(
+          onPressed: () {},
+          child: const Text('Sign Up'),
+          style: TextButton.styleFrom(
+            backgroundColor: Color(0XFF17CF73),
+            foregroundColor: Colors.black,
+            padding: const EdgeInsets.symmetric(horizontal: 120, vertical: 15),
+            textStyle: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
+              fontFamily: 'Epilogue',
             ),
-          ),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Color(0XFF14CC14),
-            padding: const EdgeInsets.symmetric(horizontal: 120, vertical: 15),
           ),
         ),
-        const SizedBox(height: 10),
-        ElevatedButton(
-          onPressed: () {
-            // Navigate to the next page or perform an action
-          },
-          child: const Text(
-            'Log In',
-            style: TextStyle(
-              color: Colors.black,
-              fontFamily: 'Epilogue',
+        const SizedBox(height: 20),
+        TextButton(
+          onPressed: () {},
+          child: const Text('Login'),
+          style: TextButton.styleFrom(
+            backgroundColor: Color(0XFF17CF73),
+            foregroundColor: Colors.black,
+            padding: const EdgeInsets.symmetric(horizontal: 130, vertical: 15),
+            textStyle: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
+              fontFamily: 'Epilogue',
             ),
-          ),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Color(0XFFF0F5F0),
-            padding: const EdgeInsets.symmetric(horizontal: 120, vertical: 15),
           ),
         ),
       ],
