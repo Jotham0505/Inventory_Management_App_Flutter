@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tea_app/pages/Auth/loginPage.dart';
 import 'package:tea_app/pages/Auth/onboardingPage.dart';
+import 'package:tea_app/pages/Auth/signupPage.dart';
 
 void main() {
   runApp(const MyApp());

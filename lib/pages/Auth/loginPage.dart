@@ -84,7 +84,7 @@ class _LoginpageState extends State<Loginpage> {
             child: const Text(
               'Login',
               style: TextStyle(
-                fontSize: 18,
+                fontSize: 12,
                 fontWeight: FontWeight.bold,
                 fontFamily: 'Epilogue',
               ),
