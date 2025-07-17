@@ -1,4 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class Loginpage extends StatefulWidget {
   const Loginpage({super.key});
@@ -8,6 +12,9 @@ class Loginpage extends StatefulWidget {
 }
 
 class _LoginpageState extends State<Loginpage> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -65,7 +72,24 @@ class _LoginpageState extends State<Loginpage> {
           ),
           const SizedBox(height: 30),
           TextButton(
-            onPressed: () {},
+            onPressed: () async {
+              final url = Uri.parse('http://127.0.0.1:8000/login');
+              // Handle login action
+              final response = await http.post(url, body: {
+                'email': _emailController.text,
+                'password': _passwordController.text,
+              });
+              if (response.statusCode == 200) {
+                final token = jsonDecode(response.body)['access_token'];
+                final storage = FlutterSecureStorage();
+                await storage.write(key: 'access_token', value: token);
+                Navigator.pushReplacementNamed(context, '/home');
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Login failed!')),
+                );
+              }
+            },
             style: TextButton.styleFrom(
               backgroundColor: Color(0XFF17CF73),
               foregroundColor: Colors.black,
