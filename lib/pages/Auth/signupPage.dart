@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:tea_app/pages/App_Pages/homePage.dart';
+import 'package:tea_app/pages/App_Pages/itemsPage.dart';
 
 class SignupPage extends StatelessWidget {
   const SignupPage({super.key});
@@ -64,7 +64,7 @@ class SignupPage extends StatelessWidget {
                     final token = jsonDecode(response.body)['access_token'];
                     await storage.write(key: 'access_token', value: token);
                     Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => Homepage()));
+                        MaterialPageRoute(builder: (context) => Itemspage()));
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Signup successful!')),
                     );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tea_app/pages/App_Pages/itemsPage.dart';
 import 'package:tea_app/pages/Auth/loginPage.dart';
 import 'package:tea_app/pages/Auth/onboardingPage.dart';
 import 'package:tea_app/pages/Auth/signupPage.dart';
@@ -20,7 +21,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const Loginpage(),
+      home: const Itemspage(),
     );
   }
 }

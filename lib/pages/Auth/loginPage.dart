@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:tea_app/pages/App_Pages/homePage.dart';
+import 'package:tea_app/pages/App_Pages/itemsPage.dart';
 import 'package:tea_app/pages/Auth/signupPage.dart';
 
 class Loginpage extends StatefulWidget {
@@ -100,7 +100,7 @@ class _LoginpageState extends State<Loginpage> {
                     final storage = FlutterSecureStorage();
                     await storage.write(key: 'access_token', value: token);
                     Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => Homepage()));
+                        MaterialPageRoute(builder: (context) => Itemspage()));
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('Login failed: ${response.body}')),
