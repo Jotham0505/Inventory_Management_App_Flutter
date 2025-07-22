@@ -114,27 +114,80 @@ class _ItemspageState extends State<Itemspage> {
           ),
         ),
 
+        SizedBox(height: 10),
+
+        ListBody(
+          children: [
+            ListTile(
+              leading: Image.asset(
+                'assets/item1.png',
+                width: 40,
+                height: 40,
+                fit: BoxFit.cover,
+              ),
+              title: Text("Item 1"),
+              subtitle: Text("Description of Item 1"),
+            ),
+            ListTile(
+              leading: Image.asset(
+                'assets/item2.png',
+                width: 40,
+                height: 40,
+                fit: BoxFit.cover,
+              ),
+              title: Text("Item 2"),
+              subtitle: Text("Description of Item 2"),
+            ),
+            ListTile(
+              leading: Image.asset(
+                'assets/item3.png',
+                width: 40,
+                height: 40,
+                fit: BoxFit.cover,
+              ),
+              title: Text("Item 3"),
+              subtitle: Text("Description of Item 3"),
+            ),
+            ListTile(
+              leading: Image.asset(
+                'assets/item4.png',
+                width: 40,
+                height: 40,
+                fit: BoxFit.cover,
+              ),
+              title: Text("Item 4"),
+              subtitle: Text("Description of Item 4"),
+            ),
+          ],
+        ),
+
         Spacer(),
 
         // Navigation bottom bar
         BottomNavigationBar(
           items: [
             BottomNavigationBarItem(
-              icon: Image.asset('assets/home.png', width: 24, height: 24),
-              label: 'Home',
-              activeIcon: Image.asset(
-                'assets/home.png',
-                width: 24,
-                height: 24,
-                color: Colors.green, // Change to your desired color
+              icon: Icon(
+                Icons.home_rounded,
+                size: 24,
+                color: Colors.black,
               ),
+              label: 'Home',
             ),
             BottomNavigationBarItem(
-              icon: Image.asset('assets/search.png', width: 24, height: 24),
-              label: 'Search',
+              icon: Icon(
+                Icons.add,
+                size: 24,
+                color: Colors.black,
+              ),
+              label: 'Add',
             ),
             BottomNavigationBarItem(
-              icon: Image.asset('assets/profile.png', width: 24, height: 24),
+              icon: Icon(
+                Icons.person,
+                size: 24,
+                color: Colors.black,
+              ),
               label: 'Profile',
             ),
           ],
