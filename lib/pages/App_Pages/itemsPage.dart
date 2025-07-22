@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
+import 'package:tea_app/pages/App_Pages/addItemsPage.dart';
 import 'package:tea_app/pages/App_Pages/itemDetailPage.dart';
 
 class Itemspage extends StatefulWidget {
@@ -72,24 +73,21 @@ class _ItemspageState extends State<Itemspage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(
-          height: 30,
+          height: 25,
         ),
-        Row(
-          children: [
-            SizedBox(
-              width: 10,
+        Center(
+          child: Text(
+            "Inventory",
+            style: TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Epilogue',
             ),
-            Icon(Icons.arrow_back_ios_new, size: 20),
-            SizedBox(width: 110),
-            Text(
-              "Inventory",
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                fontFamily: 'Epilogue',
-              ),
-            ),
-          ],
+          ),
+        ),
+
+        SizedBox(
+          height: 20,
         ),
 
         Padding(
@@ -97,7 +95,7 @@ class _ItemspageState extends State<Itemspage> {
           child: Text(
             "All Items",
             style: TextStyle(
-              fontSize: 20,
+              fontSize: 24,
               fontWeight: FontWeight.bold,
               fontFamily: 'Epilogue',
             ),
@@ -397,6 +395,15 @@ class _ItemspageState extends State<Itemspage> {
               label: 'Profile',
             ),
           ],
+          onTap: (index) {
+            if (index == 1) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => Additemspage()),
+              );
+            }
+            // You can handle other indices if needed
+          },
         ),
       ],
     ));
