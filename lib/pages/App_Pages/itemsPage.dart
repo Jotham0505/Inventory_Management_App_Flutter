@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
+import 'package:tea_app/pages/App_Pages/itemDetailPage.dart';
 
 class Itemspage extends StatefulWidget {
   const Itemspage({super.key});
@@ -70,17 +71,25 @@ class _ItemspageState extends State<Itemspage> {
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding:
-              const EdgeInsets.symmetric(horizontal: 120.0, vertical: 40.0),
-          child: Text(
-            "Inventory",
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              fontFamily: 'Epilogue',
+        SizedBox(
+          height: 30,
+        ),
+        Row(
+          children: [
+            SizedBox(
+              width: 10,
             ),
-          ),
+            Icon(Icons.arrow_back_ios_new, size: 20),
+            SizedBox(width: 110),
+            Text(
+              "Inventory",
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Epilogue',
+              ),
+            ),
+          ],
         ),
 
         Padding(
@@ -150,6 +159,18 @@ class _ItemspageState extends State<Itemspage> {
                   ),
                 ],
               ),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ItemDetailsPage(
+                      title: "Matcha",
+                      subtitle: "Green Tea",
+                      imagePath: 'assets/item1.png',
+                    ),
+                  ),
+                );
+              },
             ),
             ListTile(
               leading: Image.asset(
@@ -202,6 +223,18 @@ class _ItemspageState extends State<Itemspage> {
                   ),
                 ],
               ),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ItemDetailsPage(
+                      title: "Earl Grey",
+                      subtitle: "Black Tea",
+                      imagePath: 'assets/item2.png',
+                    ),
+                  ),
+                );
+              },
             ),
             ListTile(
               leading: Image.asset(
@@ -254,6 +287,18 @@ class _ItemspageState extends State<Itemspage> {
                   ),
                 ],
               ),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ItemDetailsPage(
+                      title: "Chamomile",
+                      subtitle: "Herbal Tea",
+                      imagePath: 'assets/item3.png',
+                    ),
+                  ),
+                );
+              },
             ),
             ListTile(
               leading: Image.asset(
@@ -306,6 +351,18 @@ class _ItemspageState extends State<Itemspage> {
                   ),
                 ],
               ),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ItemDetailsPage(
+                      title: "Tieguan Yin",
+                      subtitle: "Oolong Tea",
+                      imagePath: 'assets/item4.png',
+                    ),
+                  ),
+                );
+              },
             ),
           ],
         ),
