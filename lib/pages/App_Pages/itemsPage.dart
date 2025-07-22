@@ -83,25 +83,6 @@ class _ItemspageState extends State<Itemspage> {
           ),
         ),
 
-        // Search Bar
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: TextField(
-            decoration: InputDecoration(
-              hintText: 'Search...',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8.0),
-                borderSide: BorderSide(
-                  color: Color.fromARGB(255, 217, 243, 227),
-                ),
-              ),
-              contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
-            ),
-          ),
-        ),
-
-        SizedBox(height: 20),
-
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 15.0),
           child: Text(
@@ -125,8 +106,50 @@ class _ItemspageState extends State<Itemspage> {
                 height: 40,
                 fit: BoxFit.cover,
               ),
-              title: Text("Item 1"),
-              subtitle: Text("Description of Item 1"),
+              title: Text(
+                "Matcha",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                  fontFamily: 'Epilogue',
+                ),
+              ),
+              subtitle: Text(
+                "Green Tea",
+                style: TextStyle(
+                    fontWeight: FontWeight.w500,
+                    fontSize: 13,
+                    fontFamily: 'Epilogue',
+                    color: Colors.grey),
+              ),
+              trailing: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: Icon(
+                      Icons.remove_circle_outline,
+                      size: 18,
+                    ),
+                    onPressed: () {
+                      // TODO: Implement remove item logic
+                    },
+                  ),
+                  Text(
+                    "10",
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontFamily: 'Epilogue',
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.add_circle_outline, size: 18),
+                    onPressed: () {
+                      // TODO: Implement add item logic
+                    },
+                  ),
+                ],
+              ),
             ),
             ListTile(
               leading: Image.asset(
@@ -135,8 +158,50 @@ class _ItemspageState extends State<Itemspage> {
                 height: 40,
                 fit: BoxFit.cover,
               ),
-              title: Text("Item 2"),
-              subtitle: Text("Description of Item 2"),
+              title: Text(
+                "Earl Grey",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                  fontFamily: 'Epilogue',
+                ),
+              ),
+              subtitle: Text(
+                "Black Tea",
+                style: TextStyle(
+                    fontWeight: FontWeight.w500,
+                    fontSize: 13,
+                    fontFamily: 'Epilogue',
+                    color: Colors.grey),
+              ),
+              trailing: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: Icon(
+                      Icons.remove_circle_outline,
+                      size: 18,
+                    ),
+                    onPressed: () {
+                      // TODO: Implement remove item logic
+                    },
+                  ),
+                  Text(
+                    "10",
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontFamily: 'Epilogue',
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.add_circle_outline, size: 18),
+                    onPressed: () {
+                      // TODO: Implement add item logic
+                    },
+                  ),
+                ],
+              ),
             ),
             ListTile(
               leading: Image.asset(
@@ -145,8 +210,50 @@ class _ItemspageState extends State<Itemspage> {
                 height: 40,
                 fit: BoxFit.cover,
               ),
-              title: Text("Item 3"),
-              subtitle: Text("Description of Item 3"),
+              title: Text(
+                "Chamomile",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                  fontFamily: 'Epilogue',
+                ),
+              ),
+              subtitle: Text(
+                "Herbal Tea",
+                style: TextStyle(
+                    fontWeight: FontWeight.w500,
+                    fontSize: 13,
+                    fontFamily: 'Epilogue',
+                    color: Colors.grey),
+              ),
+              trailing: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: Icon(
+                      Icons.remove_circle_outline,
+                      size: 18,
+                    ),
+                    onPressed: () {
+                      // TODO: Implement remove item logic
+                    },
+                  ),
+                  Text(
+                    "10",
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontFamily: 'Epilogue',
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.add_circle_outline, size: 18),
+                    onPressed: () {
+                      // TODO: Implement add item logic
+                    },
+                  ),
+                ],
+              ),
             ),
             ListTile(
               leading: Image.asset(
@@ -155,8 +262,50 @@ class _ItemspageState extends State<Itemspage> {
                 height: 40,
                 fit: BoxFit.cover,
               ),
-              title: Text("Item 4"),
-              subtitle: Text("Description of Item 4"),
+              title: Text(
+                "Tieguan Yin",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                  fontFamily: 'Epilogue',
+                ),
+              ),
+              subtitle: Text(
+                "Oolong Tea",
+                style: TextStyle(
+                    fontWeight: FontWeight.w500,
+                    fontSize: 13,
+                    fontFamily: 'Epilogue',
+                    color: Colors.grey),
+              ),
+              trailing: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: Icon(
+                      Icons.remove_circle_outline,
+                      size: 18,
+                    ),
+                    onPressed: () {
+                      // TODO: Implement remove item logic
+                    },
+                  ),
+                  Text(
+                    "10",
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontFamily: 'Epilogue',
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.add_circle_outline, size: 18),
+                    onPressed: () {
+                      // TODO: Implement add item logic
+                    },
+                  ),
+                ],
+              ),
             ),
           ],
         ),
