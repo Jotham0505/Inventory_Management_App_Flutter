@@ -60,9 +60,13 @@ class Additemspage extends StatelessWidget {
               ),
               child: TextField(
                 decoration: InputDecoration(
-                  hintText: 'Enter',
+                  hintText: 'Enter item name',
                   border: InputBorder.none,
                   contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
+                  hintStyle: TextStyle(
+                    fontFamily: 'Epilogue',
+                    color: Colors.grey,
+                  ),
                 ),
               ),
             ),
@@ -91,9 +95,13 @@ class Additemspage extends StatelessWidget {
               ),
               child: TextField(
                 decoration: InputDecoration(
-                  hintText: 'Enter',
+                  hintText: 'Enter quantity',
                   border: InputBorder.none,
                   contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
+                  hintStyle: TextStyle(
+                    fontFamily: 'Epilogue',
+                    color: Colors.grey,
+                  ),
                 ),
               ),
             ),
@@ -104,7 +112,7 @@ class Additemspage extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(10.0),
             child: Text(
-              "Item Name",
+              "Price",
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -122,9 +130,13 @@ class Additemspage extends StatelessWidget {
               ),
               child: TextField(
                 decoration: InputDecoration(
-                  hintText: 'Enter',
+                  hintText: 'Enter price',
                   border: InputBorder.none,
                   contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
+                  hintStyle: TextStyle(
+                    fontFamily: 'Epilogue',
+                    color: Colors.grey,
+                  ),
                 ),
               ),
             ),
@@ -135,7 +147,7 @@ class Additemspage extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(10.0),
             child: Text(
-              "Item Name",
+              "Description",
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -147,15 +159,20 @@ class Additemspage extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             child: Container(
               width: 330,
+              height: 250,
               decoration: BoxDecoration(
                 color: Color.fromARGB(255, 217, 243, 221),
                 borderRadius: BorderRadius.circular(8.0),
               ),
               child: TextField(
                 decoration: InputDecoration(
-                  hintText: 'Enter',
+                  hintText: 'Enter description',
                   border: InputBorder.none,
                   contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
+                  hintStyle: TextStyle(
+                    fontFamily: 'Epilogue',
+                    color: Colors.grey,
+                  ),
                 ),
               ),
             ),
