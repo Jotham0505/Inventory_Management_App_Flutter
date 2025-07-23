@@ -164,7 +164,7 @@ class _ItemspageState extends State<Itemspage> {
                     builder: (context) => ItemDetailsPage(
                       title: "Matcha",
                       subtitle: "Green Tea",
-                      imagePath: 'assets/item1.png',
+                      imagePath: 'assets/item11.png',
                     ),
                   ),
                 );
@@ -228,7 +228,7 @@ class _ItemspageState extends State<Itemspage> {
                     builder: (context) => ItemDetailsPage(
                       title: "Earl Grey",
                       subtitle: "Black Tea",
-                      imagePath: 'assets/item2.png',
+                      imagePath: 'assets/item22.png',
                     ),
                   ),
                 );
@@ -292,7 +292,7 @@ class _ItemspageState extends State<Itemspage> {
                     builder: (context) => ItemDetailsPage(
                       title: "Chamomile",
                       subtitle: "Herbal Tea",
-                      imagePath: 'assets/item3.png',
+                      imagePath: 'assets/item33.png',
                     ),
                   ),
                 );
@@ -356,7 +356,7 @@ class _ItemspageState extends State<Itemspage> {
                     builder: (context) => ItemDetailsPage(
                       title: "Tieguan Yin",
                       subtitle: "Oolong Tea",
-                      imagePath: 'assets/item4.png',
+                      imagePath: 'assets/item44.png',
                     ),
                   ),
                 );
