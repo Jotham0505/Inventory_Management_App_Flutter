@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 
-class Additemspage extends StatelessWidget {
+class Additemspage extends StatefulWidget {
   const Additemspage({super.key});
 
+  @override
+  State<Additemspage> createState() => _AdditemspageState();
+}
+
+class _AdditemspageState extends State<Additemspage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
