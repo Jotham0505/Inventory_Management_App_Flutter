@@ -16,7 +16,7 @@ class _AdditemspageState extends State<Additemspage> {
   final TextEditingController descriptionController = TextEditingController();
 
   final String apiUrl =
-      "http://10.0.2.2:8000/items"; // Adjust if on physical device
+      "http://192.168.137.1:8000/api/inventory/"; // Updated endpoint
 
   Future<void> addItem() async {
     final Map<String, dynamic> itemData = {
@@ -26,21 +26,26 @@ class _AdditemspageState extends State<Additemspage> {
       "description": descriptionController.text.trim(),
     };
 
-    final response = await http.post(
-      Uri.parse(apiUrl),
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode(itemData),
-    );
-
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      // You can show a success message or navigate back
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Item added successfully!")),
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(itemData),
       );
-      Navigator.pop(context);
-    } else {
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Item added successfully!")),
+        );
+        Navigator.pop(context);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Failed to add item: ${response.statusCode}")),
+        );
+      }
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Failed to add item")),
+        SnackBar(content: Text("Error: $e")),
       );
     }
   }
