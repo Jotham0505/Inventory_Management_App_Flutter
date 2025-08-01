@@ -345,6 +345,77 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
                 ),
               ),
             ),
+            SizedBox(
+              height: 15,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(
+                    "Current Sales Count",
+                    style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Epilogue',
+                        color: Colors.grey),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Text(
+                    "15",
+                    style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Epilogue',
+                        color: Colors.black),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(
+              height: 15,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: TextButton(
+                    onPressed: () {},
+                    child: Text(
+                      "Edit",
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontFamily: 'Epilogue',
+                        fontSize: 15,
+                      ),
+                    ),
+                    style: TextButton.styleFrom(
+                        backgroundColor: Color.fromARGB(255, 196, 196, 196),
+                        elevation: 10),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: TextButton(
+                    onPressed: () {},
+                    child: Text(
+                      "Delete",
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontFamily: 'Epilogue',
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold),
+                    ),
+                    style: TextButton.styleFrom(
+                        backgroundColor: Color(0xffBDE5BD), elevation: 10),
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),
