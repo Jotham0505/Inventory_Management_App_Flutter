@@ -210,6 +210,99 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
                 ),
               ],
             ),
+            Divider(
+              height: 5,
+              indent: 15,
+              endIndent: 15,
+            ),
+            Row(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(
+                    "Notes",
+                    style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Epilogue',
+                        color: Colors.grey),
+                  ),
+                ),
+                SizedBox(
+                  width: 30,
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    "Smooth, balanced, with a thint of citrus",
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontFamily: 'Epilogue',
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(
+              height: 15,
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                "Sales Management",
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Epilogue',
+                ),
+              ),
+            ),
+            Divider(
+              height: 5,
+              indent: 15,
+              endIndent: 15,
+            ),
+            Row(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(
+                    "Current Sales Count",
+                    style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Epilogue',
+                        color: Colors.grey),
+                  ),
+                ),
+                SizedBox(
+                  width: 30,
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    SizedBox(
+                      width: 45,
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.remove_circle_outline),
+                      onPressed: () {},
+                    ),
+                    Text(
+                      '120',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontFamily: 'Epilogue',
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.add_circle_outline),
+                      onPressed: () {},
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ],
         ),
       ),
