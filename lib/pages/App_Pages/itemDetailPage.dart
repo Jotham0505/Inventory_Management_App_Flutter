@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 class ItemDetailsPage extends StatefulWidget {
   final String title;
@@ -17,6 +18,8 @@ class ItemDetailsPage extends StatefulWidget {
 }
 
 class _ItemDetailsPageState extends State<ItemDetailsPage> {
+  DateTime _focusedDay = DateTime.now();
+  DateTime? _selectedDay;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -302,6 +305,45 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
                   ],
                 ),
               ],
+            ),
+            SizedBox(
+              height: 15,
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                "Daily Sales",
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Epilogue',
+                ),
+              ),
+            ),
+            // add calenddar over here
+            TableCalendar(
+              firstDay: DateTime.utc(2020, 1, 1),
+              lastDay: DateTime.utc(2030, 12, 31),
+              focusedDay: _focusedDay,
+              selectedDayPredicate: (day) {
+                return isSameDay(_selectedDay, day);
+              },
+              onDaySelected: (selectedDay, focusedDay) {
+                setState(() {
+                  _selectedDay = selectedDay;
+                  _focusedDay = focusedDay;
+                });
+              },
+              calendarStyle: CalendarStyle(
+                todayDecoration: BoxDecoration(
+                  color: Color(0xffBDE5BD),
+                  shape: BoxShape.circle,
+                ),
+                selectedDecoration: BoxDecoration(
+                  color: Colors.lightBlue,
+                  shape: BoxShape.circle,
+                ),
+              ),
             ),
           ],
         ),
