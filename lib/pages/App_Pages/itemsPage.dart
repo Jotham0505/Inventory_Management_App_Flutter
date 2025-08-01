@@ -222,8 +222,7 @@ class _ItemspageState extends State<Itemspage> {
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => ItemDetailsPage(
-                                    title: item.name,
-                                    subtitle: item.description,
+                                    item: item,
                                     imagePath: 'assets/item1.png',
                                   ),
                                 ),
