@@ -20,6 +20,48 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
 
+  Widget _buildSectionTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
+      child: Text(
+        title,
+        style: const TextStyle(
+          fontSize: 22,
+          fontWeight: FontWeight.bold,
+          fontFamily: 'Epilogue',
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDetailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Epilogue',
+              color: Colors.grey,
+            ),
+          ),
+          const SizedBox(width: 30),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 16,
+              fontFamily: 'Epilogue',
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final item = widget.item;
@@ -29,313 +71,128 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Image.asset(
-              widget.imagePath,
-              width: double.infinity,
-              height: 250,
-              fit: BoxFit.cover,
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(
-                item.name,
-                style: const TextStyle(
-                  fontSize: 30,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'Epilogue',
+            Hero(
+              tag: item.id,
+              child: ClipRRect(
+                borderRadius:
+                    const BorderRadius.vertical(bottom: Radius.circular(12)),
+                child: Image.asset(
+                  widget.imagePath,
+                  width: double.infinity,
+                  height: 250,
+                  fit: BoxFit.cover,
                 ),
               ),
             ),
+            _buildSectionTitle(item.name),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
               child: Text(
                 item.description,
                 style: const TextStyle(
                   fontSize: 16,
-                  color: Colors.black54,
+                  color: Colors.black87,
                   fontFamily: 'Epilogue',
+                  height: 1.4,
                 ),
               ),
             ),
+            _buildSectionTitle("Details"),
+            _buildDetailRow("Quantity:", "${item.quantity} boxes"),
+            _buildDetailRow("Price:", "₹${item.price.toStringAsFixed(2)}"),
+            _buildDetailRow("Supplier:", "OLAND TEA"),
+            _buildDetailRow("Origin:", "India"),
+            _buildSectionTitle("Sales Management"),
             Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(
-                "Details",
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'Epilogue',
-                ),
-              ),
-            ),
-            const Divider(indent: 15, endIndent: 15),
-
-            // Quantity
-            Row(
-              children: [
-                const Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Text(
-                    "Quantity",
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Epilogue',
-                      color: Colors.grey,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 30),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    '${item.quantity} boxes',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontFamily: 'Epilogue',
-                    ),
-                  ),
-                ),
-              ],
-            ),
-
-            const Divider(indent: 15, endIndent: 15),
-
-            // Price
-            Row(
-              children: [
-                const Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Text(
-                    "Price",
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Epilogue',
-                      color: Colors.grey,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 30),
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Text(
-                    '₹${item.price.toStringAsFixed(2)}',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontFamily: 'Epilogue',
-                    ),
-                  ),
-                ),
-              ],
-            ),
-
-            const Divider(indent: 15, endIndent: 15),
-
-            // Supplier (Static)
-            Row(
-              children: const [
-                Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Text(
-                    "Supplier",
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Epilogue',
-                      color: Colors.grey,
-                    ),
-                  ),
-                ),
-                SizedBox(width: 30),
-                Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Text(
-                    "OLAND TEA",
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontFamily: 'Epilogue',
-                    ),
-                  ),
-                ),
-              ],
-            ),
-
-            // Additional Information
-            const Divider(indent: 15, endIndent: 15),
-
-            // Origin (Static)
-            Row(
-              children: const [
-                Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Text(
-                    "Origin",
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Epilogue',
-                      color: Colors.grey,
-                    ),
-                  ),
-                ),
-                SizedBox(width: 30),
-                Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Text(
-                    "India",
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontFamily: 'Epilogue',
-                    ),
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 15),
-
-            // Sales Management
-            const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Text(
-                "Sales Management",
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'Epilogue',
-                ),
-              ),
-            ),
-            const Divider(indent: 15, endIndent: 15),
-
-            // Sales Counter
-            Row(
-              children: [
-                const Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Text(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
                     "Current Sales Count",
                     style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
                       fontFamily: 'Epilogue',
-                      color: Colors.grey,
                     ),
                   ),
-                ),
-                const SizedBox(width: 60),
-                Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.remove_circle_outline),
-                      onPressed: () {
-                        // You can manage local sales state here
-                      },
-                    ),
-                    const Text(
-                      '120',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontFamily: 'Epilogue',
+                  Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.remove_circle_outline,
+                            size: 28, color: Colors.grey),
+                        onPressed: () {
+                          // Handle decrement
+                        },
+                      ),
+                      const Text(
+                        '120',
+                        style: TextStyle(fontSize: 16, fontFamily: 'Epilogue'),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.add_circle_outline,
+                            size: 28, color: Colors.grey),
+                        onPressed: () {
+                          // Handle increment
+                        },
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            _buildSectionTitle("Daily Sales"),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+              child: Card(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+                elevation: 2,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: TableCalendar(
+                    firstDay: DateTime.utc(2020, 1, 1),
+                    lastDay: DateTime.utc(2030, 12, 31),
+                    focusedDay: _focusedDay,
+                    selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+                    onDaySelected: (selectedDay, focusedDay) {
+                      setState(() {
+                        _selectedDay = selectedDay;
+                        _focusedDay = focusedDay;
+                      });
+                    },
+                    calendarStyle: const CalendarStyle(
+                      todayDecoration: BoxDecoration(
+                        color: Color(0xffBDE5BD),
+                        shape: BoxShape.circle,
+                      ),
+                      selectedDecoration: BoxDecoration(
+                        color: Colors.lightBlue,
+                        shape: BoxShape.circle,
                       ),
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.add_circle_outline),
-                      onPressed: () {
-                        // You can manage local sales state here
-                      },
-                    ),
-                  ],
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 15),
-
-            // Calendar
-            const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Text(
-                "Daily Sales",
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'Epilogue',
+                  ),
                 ),
               ),
             ),
-            TableCalendar(
-              firstDay: DateTime.utc(2020, 1, 1),
-              lastDay: DateTime.utc(2030, 12, 31),
-              focusedDay: _focusedDay,
-              selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
-              onDaySelected: (selectedDay, focusedDay) {
-                setState(() {
-                  _selectedDay = selectedDay;
-                  _focusedDay = focusedDay;
-                });
-              },
-              calendarStyle: const CalendarStyle(
-                todayDecoration: BoxDecoration(
-                  color: Color(0xffBDE5BD),
-                  shape: BoxShape.circle,
-                ),
-                selectedDecoration: BoxDecoration(
-                  color: Colors.lightBlue,
-                  shape: BoxShape.circle,
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 15),
-
-            // Dummy Sales Count
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: const [
-                Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Text(
-                    "Current Sales Count",
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Epilogue',
-                      color: Colors.grey,
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.all(10.0),
-                  child: Text(
-                    "15",
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Epilogue',
-                      color: Colors.black,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 15),
-
-            // Edit & Delete Buttons
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: TextButton(
+            const SizedBox(height: 20),
+            _buildDetailRow("Current Sales Count", "15"),
+            const SizedBox(height: 10),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
                     onPressed: () {
-                      // TODO: Implement Edit
+                      // Edit
                     },
-                    style: TextButton.styleFrom(
-                      backgroundColor: const Color(0xFFC4C4C4),
-                      elevation: 10,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.grey[300],
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8)),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 12),
                     ),
                     child: const Text(
                       "Edit",
@@ -346,16 +203,17 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
                       ),
                     ),
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: TextButton(
+                  ElevatedButton(
                     onPressed: () {
-                      // TODO: Implement Delete
+                      // Delete
                     },
-                    style: TextButton.styleFrom(
+                    style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xffBDE5BD),
-                      elevation: 10,
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8)),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 12),
                     ),
                     child: const Text(
                       "Delete",
@@ -367,9 +225,10 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
+            const SizedBox(height: 20),
           ],
         ),
       ),
