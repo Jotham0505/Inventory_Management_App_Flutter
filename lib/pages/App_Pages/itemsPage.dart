@@ -1,3 +1,4 @@
+// lib/pages/App_Pages/itemsPage.dart
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -83,47 +84,60 @@ class _ItemspageState extends State<Itemspage> {
         setState(() {
           isLoading = false;
         });
-        print("Failed to fetch inventory items: ${response.statusCode}");
+        debugPrint("Failed to fetch inventory items: ${response.statusCode}");
       }
     } catch (e) {
       setState(() {
         isLoading = false;
       });
-      print("Error fetching items: $e");
+      debugPrint("Error fetching items: $e");
     }
   }
 
-  Future<void> adjustQuantity(String id, int change) async {
-    final url = Uri.parse('$baseUrl/inventory/$id/adjust');
+  String _dateKey(DateTime d) => d.toIso8601String().split('T')[0];
+
+  // Records a sale for TODAY by calling sales.adjust with date=today
+  Future<bool> adjustTodaySale(String id, int change) async {
+    final today = _dateKey(DateTime.now());
+    final url = Uri.parse('$baseUrl/inventory/$id/sales/adjust');
 
     try {
-      final response = await http.patch(
+      final res = await http.patch(
         url,
         headers: {'Content-Type': 'application/json'},
-        body:
-            jsonEncode({'change': change}), // ✅ FIXED: key name matches backend
+        body: jsonEncode({'date': today, 'change': change}),
       );
 
-      if (response.statusCode == 200) {
-        fetchInventoryItems(); // Refresh from backend after successful update
+      if (res.statusCode == 200) {
+        return true;
       } else {
-        print(
-            'Failed to adjust quantity: ${response.statusCode} - ${response.body}');
+        debugPrint(
+            'Failed to adjust today sale: ${res.statusCode} - ${res.body}');
+        return false;
       }
     } catch (e) {
-      print('Error adjusting quantity: $e');
+      debugPrint('Error adjusting today sale: $e');
+      return false;
     }
   }
 
-  void changeQuantity(int index, int delta) {
+  void changeQuantity(int index, int delta) async {
     final item = items[index];
     final newQty = item.quantity + delta;
+    if (newQty < 0) return;
 
-    if (newQty >= 0) {
-      adjustQuantity(item.id, delta); // Send only the change value to backend
-      setState(() {
-        items[index].quantity = newQty; // Optimistic UI update
-      });
+    // Optimistic update in UI
+    setState(() => items[index].quantity = newQty);
+
+    final ok = await adjustTodaySale(item.id, delta);
+    if (!ok) {
+      // revert on failure and show message
+      setState(() => items[index].quantity = item.quantity);
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to update stock')));
+    } else {
+      // refresh from server to ensure consistency
+      await fetchInventoryItems();
     }
   }
 
@@ -131,7 +145,7 @@ class _ItemspageState extends State<Itemspage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : SafeArea(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -148,8 +162,8 @@ class _ItemspageState extends State<Itemspage> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.0),
                     child: Text(
                       "All Items",
                       style: TextStyle(
@@ -176,59 +190,44 @@ class _ItemspageState extends State<Itemspage> {
                           child: ListTile(
                             contentPadding: const EdgeInsets.symmetric(
                                 horizontal: 12, vertical: 8),
-                            leading: Image.asset(
-                              'assets/item1.png',
-                              width: 40,
-                              height: 40,
-                              fit: BoxFit.cover,
-                            ),
-                            title: Text(
-                              item.name,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 15,
-                                fontFamily: 'Epilogue',
-                              ),
-                            ),
-                            subtitle: Text(
-                              item.description,
-                              style: TextStyle(
-                                fontWeight: FontWeight.w500,
-                                fontSize: 13,
-                                fontFamily: 'Epilogue',
-                                color: Colors.grey[600],
-                              ),
-                            ),
+                            leading: Image.asset('assets/item1.png',
+                                width: 40, height: 40, fit: BoxFit.cover),
+                            title: Text(item.name,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 15,
+                                    fontFamily: 'Epilogue')),
+                            subtitle: Text(item.description,
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 13,
+                                    fontFamily: 'Epilogue',
+                                    color: Colors.grey[600])),
                             trailing: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 IconButton(
-                                  icon: Icon(Icons.remove_circle_outline),
-                                  onPressed: () => changeQuantity(index, -1),
-                                ),
-                                Text(
-                                  '${item.quantity}',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontFamily: 'Epilogue',
-                                  ),
-                                ),
+                                    icon:
+                                        const Icon(Icons.remove_circle_outline),
+                                    onPressed: () => changeQuantity(index, -1)),
+                                Text('${item.quantity}',
+                                    style: const TextStyle(
+                                        fontSize: 14, fontFamily: 'Epilogue')),
                                 IconButton(
-                                  icon: Icon(Icons.add_circle_outline),
-                                  onPressed: () => changeQuantity(index, 1),
-                                ),
+                                    icon: const Icon(Icons.add_circle_outline),
+                                    onPressed: () => changeQuantity(index, 1)),
                               ],
                             ),
-                            onTap: () {
-                              Navigator.push(
+                            onTap: () async {
+                              // go to details and refresh after returning
+                              await Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => ItemDetailsPage(
-                                    item: item,
-                                    imagePath: 'assets/item1.png',
-                                  ),
-                                ),
+                                    builder: (context) => ItemDetailsPage(
+                                        item: item,
+                                        imagePath: 'assets/item1.png')),
                               );
+                              await fetchInventoryItems();
                             },
                           ),
                         );
@@ -239,26 +238,21 @@ class _ItemspageState extends State<Itemspage> {
               ),
             ),
       bottomNavigationBar: BottomNavigationBar(
-        items: [
+        items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home_rounded, size: 24, color: Colors.black),
-            label: 'Home',
-          ),
+              icon: Icon(Icons.home_rounded, size: 24, color: Colors.black),
+              label: 'Home'),
           BottomNavigationBarItem(
-            icon: Icon(Icons.add, size: 24, color: Colors.black),
-            label: 'Add',
-          ),
+              icon: Icon(Icons.add, size: 24, color: Colors.black),
+              label: 'Add'),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person, size: 24, color: Colors.black),
-            label: 'Profile',
-          ),
+              icon: Icon(Icons.person, size: 24, color: Colors.black),
+              label: 'Profile'),
         ],
         onTap: (index) {
           if (index == 1) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => Additemspage()),
-            );
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => Additemspage()));
           }
         },
       ),
