@@ -93,30 +93,25 @@ class _ItemspageState extends State<Itemspage> {
     }
   }
 
-  Future<void> updateQuantity(
-      String id, int newQuantity, InventoryItem item) async {
-    final url = Uri.parse('$baseUrl/inventory/$id');
+  Future<void> adjustQuantity(String id, int change) async {
+    final url = Uri.parse('$baseUrl/inventory/$id/adjust');
 
     try {
-      final updatedItem = {
-        'name': item.name,
-        'description': item.description,
-        'quantity': newQuantity
-      };
-
-      final response = await http.put(
+      final response = await http.patch(
         url,
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(updatedItem),
+        body:
+            jsonEncode({'change': change}), // ✅ FIXED: key name matches backend
       );
 
       if (response.statusCode == 200) {
-        fetchInventoryItems(); // Refresh the list after update
+        fetchInventoryItems(); // Refresh from backend after successful update
       } else {
-        print('Failed to update quantity: ${response.statusCode}');
+        print(
+            'Failed to adjust quantity: ${response.statusCode} - ${response.body}');
       }
     } catch (e) {
-      print('Error updating quantity: $e');
+      print('Error adjusting quantity: $e');
     }
   }
 
@@ -125,9 +120,9 @@ class _ItemspageState extends State<Itemspage> {
     final newQty = item.quantity + delta;
 
     if (newQty >= 0) {
-      updateQuantity(item.id, newQty, item); // Pass the whole item
+      adjustQuantity(item.id, delta); // Send only the change value to backend
       setState(() {
-        items[index].quantity = newQty; // UI update
+        items[index].quantity = newQty; // Optimistic UI update
       });
     }
   }
