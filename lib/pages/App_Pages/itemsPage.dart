@@ -93,20 +93,27 @@ class _ItemspageState extends State<Itemspage> {
     }
   }
 
-  Future<void> updateQuantity(String id, int newQuantity) async {
+  Future<void> updateQuantity(
+      String id, int newQuantity, InventoryItem item) async {
     final url = Uri.parse('$baseUrl/inventory/$id');
 
     try {
+      final updatedItem = {
+        'name': item.name,
+        'description': item.description,
+        'quantity': newQuantity
+      };
+
       final response = await http.put(
         url,
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'quantity': newQuantity}),
+        body: jsonEncode(updatedItem),
       );
 
       if (response.statusCode == 200) {
-        fetchInventoryItems(); // Refresh the list
+        fetchInventoryItems(); // Refresh the list after update
       } else {
-        print('Failed to update quantity');
+        print('Failed to update quantity: ${response.statusCode}');
       }
     } catch (e) {
       print('Error updating quantity: $e');
@@ -118,7 +125,7 @@ class _ItemspageState extends State<Itemspage> {
     final newQty = item.quantity + delta;
 
     if (newQty >= 0) {
-      updateQuantity(item.id, newQty); // Backend update
+      updateQuantity(item.id, newQty, item); // Pass the whole item
       setState(() {
         items[index].quantity = newQty; // UI update
       });
