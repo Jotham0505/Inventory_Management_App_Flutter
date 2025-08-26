@@ -192,17 +192,22 @@ class _ItemspageState extends State<Itemspage> {
                                 horizontal: 12, vertical: 8),
                             leading: Image.asset('assets/item1.png',
                                 width: 40, height: 40, fit: BoxFit.cover),
-                            title: Text(item.name,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 15,
-                                    fontFamily: 'Epilogue')),
-                            subtitle: Text(item.description,
-                                style: TextStyle(
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 13,
-                                    fontFamily: 'Epilogue',
-                                    color: Colors.grey[600])),
+                            title: Text(
+                              item.name,
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 15,
+                                  fontFamily: 'Epilogue'),
+                            ),
+                            subtitle: Text(
+                              item.description,
+                              style: TextStyle(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 13,
+                                fontFamily: 'Epilogue',
+                                color: Colors.grey[600],
+                              ),
+                            ),
                             trailing: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [

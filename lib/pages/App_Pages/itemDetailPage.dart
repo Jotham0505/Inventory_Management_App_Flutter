@@ -20,6 +20,8 @@ class ItemDetailsPage extends StatefulWidget {
 }
 
 class _ItemDetailsPageState extends State<ItemDetailsPage> {
+  final Color brandGreen = const Color(0xFF17CF73);
+
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
   int remainingQuantity = 0;
@@ -45,15 +47,8 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
       final res = await http.get(url);
       if (res.statusCode == 200) {
         final jsonBody = jsonDecode(res.body);
-        final qtyRaw = jsonBody['quantity'];
-        final int serverQty = qtyRaw is int
-            ? qtyRaw
-            : (qtyRaw is num
-                ? qtyRaw.toInt()
-                : int.tryParse(qtyRaw?.toString() ?? '') ?? remainingQuantity);
-
         setState(() {
-          remainingQuantity = serverQty;
+          remainingQuantity = jsonBody['quantity'] ?? remainingQuantity;
         });
       }
     } catch (e) {
@@ -71,14 +66,8 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
       final res = await http.get(url);
       if (res.statusCode == 200) {
         final jsonBody = jsonDecode(res.body);
-        final dynamic cnt = jsonBody['count'];
-        final int serverCount = cnt is int
-            ? cnt
-            : (cnt is num
-                ? cnt.toInt()
-                : int.tryParse(cnt?.toString() ?? '') ?? 0);
         setState(() {
-          salesForSelectedDay = serverCount;
+          salesForSelectedDay = jsonBody['count'] ?? 0;
         });
       } else {
         setState(() => salesForSelectedDay = 0);
@@ -94,13 +83,10 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
     final dateStr = _dateKey(_selectedDay!);
     final url = Uri.parse('$baseUrl/inventory/${widget.item.id}/sales/adjust');
 
-    // Save previous values so we can roll back on failure
     final prevRemaining = remainingQuantity;
     final prevSales = salesForSelectedDay;
 
-    // Optimistic update (immediate UI feedback)
     setState(() {
-      // change >0 = sell, so remaining decreases
       remainingQuantity = (remainingQuantity - change).clamp(0, 1 << 31);
       salesForSelectedDay = (salesForSelectedDay + change).clamp(0, 1 << 31);
       _isAdjusting = true;
@@ -114,61 +100,44 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
       );
 
       if (res.statusCode == 200) {
-        // parse server response safely
         final jsonBody = jsonDecode(res.body);
 
-        // parse quantity safely
         final qtyRaw = jsonBody['quantity'];
         final int serverQty = qtyRaw is int
             ? qtyRaw
             : (qtyRaw is num
                 ? qtyRaw.toInt()
-                : int.tryParse(qtyRaw?.toString() ?? '') ?? prevRemaining);
+                : int.tryParse(qtyRaw?.toString() ?? '') ?? remainingQuantity);
 
-        // parse sales map safely (handle Map<dynamic,dynamic>)
-        final dynamic rawSales = jsonBody['sales'] ?? {};
-        final Map<String, dynamic> salesMap = {};
-        if (rawSales is Map) {
-          // ensure keys are strings
-          rawSales.forEach((k, v) {
-            salesMap[k.toString()] = v;
-          });
-        }
-
-        // get value for selected date, fallback to prevSales + change
-        final dynamic salesValRaw = salesMap[dateStr];
+        final salesMapRaw = (jsonBody['sales'] ?? {}) as Map<String, dynamic>;
+        final dynamic salesValRaw = salesMapRaw[dateStr];
         final int serverSales = salesValRaw is int
             ? salesValRaw
             : (salesValRaw is num
                 ? salesValRaw.toInt()
                 : int.tryParse(salesValRaw?.toString() ?? '') ??
-                    (prevSales + change));
+                    salesForSelectedDay);
 
         setState(() {
           remainingQuantity = serverQty;
           salesForSelectedDay = serverSales;
         });
       } else {
-        // server returned non-200 -> revert optimistic update
         setState(() {
           remainingQuantity = prevRemaining;
           salesForSelectedDay = prevSales;
         });
-        debugPrint('Failed to adjust sales: ${res.statusCode} - ${res.body}');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to update sales: ${res.statusCode}')),
+          const SnackBar(content: Text('Failed to update sales')),
         );
       }
-    } catch (e, st) {
-      // network or parsing error -> revert optimistic update
+    } catch (e) {
       setState(() {
         remainingQuantity = prevRemaining;
         salesForSelectedDay = prevSales;
       });
-      debugPrint('Error adjusting sales: $e\n$st');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Network or parsing error, try again')),
-      );
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Network error')));
     } finally {
       setState(() => _isAdjusting = false);
     }
@@ -180,7 +149,7 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
     final result = await showDialog<String?>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Set remaining quantity'),
+        title: const Text('Set Remaining Quantity'),
         content: TextField(
           controller: controller,
           keyboardType: TextInputType.number,
@@ -191,7 +160,7 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
               onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
           TextButton(
               onPressed: () => Navigator.pop(ctx, controller.text),
-              child: const Text('Set')),
+              child: Text('Set', style: TextStyle(color: brandGreen))),
         ],
       ),
     );
@@ -209,13 +178,7 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
       );
       if (res.statusCode == 200) {
         final jsonBody = jsonDecode(res.body);
-        final qtyRaw = jsonBody['quantity'];
-        final int serverQty = qtyRaw is int
-            ? qtyRaw
-            : (qtyRaw is num
-                ? qtyRaw.toInt()
-                : int.tryParse(qtyRaw?.toString() ?? '') ?? newQty);
-        setState(() => remainingQuantity = serverQty);
+        setState(() => remainingQuantity = jsonBody['quantity'] ?? newQty);
         ScaffoldMessenger.of(context)
             .showSnackBar(const SnackBar(content: Text('Quantity updated')));
       } else {
@@ -223,7 +186,6 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
             const SnackBar(content: Text('Failed to set quantity')));
       }
     } catch (e) {
-      debugPrint('Error setting quantity: $e');
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Error setting quantity')));
     }
@@ -234,112 +196,147 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
     final item = widget.item;
 
     return Scaffold(
+      backgroundColor: Colors.grey[100],
       body: SafeArea(
         child: SingleChildScrollView(
-          child:
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            // Image + Title + Description
-            Hero(
-              tag: item.id,
-              child: ClipRRect(
-                borderRadius:
-                    const BorderRadius.vertical(bottom: Radius.circular(12)),
-                child: Image.asset(widget.imagePath,
-                    width: double.infinity, height: 250, fit: BoxFit.cover),
-              ),
-            ),
-            Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Text(item.name,
-                    style: const TextStyle(
-                        fontSize: 30, fontWeight: FontWeight.bold))),
-            Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Text(item.description,
-                    style: const TextStyle(
-                        fontSize: 16, color: Colors.black87, height: 1.3))),
-
-            // Details
-            const SizedBox(height: 12),
-            const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.0),
-                child: Text('Details',
-                    style:
-                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold))),
-            ListTile(
-                dense: true,
-                title: const Text('Remaining'),
-                trailing: Text('$remainingQuantity')),
-            ListTile(
-                dense: true,
-                title: const Text('Price'),
-                trailing: Text('₹${item.price.toStringAsFixed(2)}')),
-            ListTile(
-                dense: true,
-                title: const Text('Supplier'),
-                trailing: const Text('OLAND TEA')),
-
-            // Sales Management
-            const Padding(
-                padding: EdgeInsets.all(16.0),
-                child: Text('Sales Management',
-                    style:
-                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold))),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12.0),
-              child: Card(
-                child: TableCalendar(
-                  firstDay: DateTime.utc(2020, 1, 1),
-                  lastDay: DateTime.utc(2030, 12, 31),
-                  focusedDay: _focusedDay,
-                  selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
-                  onDaySelected: (selectedDay, focusedDay) {
-                    setState(() {
-                      _selectedDay = selectedDay;
-                      _focusedDay = focusedDay;
-                    });
-                    _loadSalesForSelectedDay();
-                  },
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Hero(
+                tag: item.id,
+                child: ClipRRect(
+                  borderRadius:
+                      const BorderRadius.vertical(bottom: Radius.circular(20)),
+                  child: Image.asset(
+                    widget.imagePath,
+                    width: double.infinity,
+                    height: 250,
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
-            ),
-
-            // Sales counter row
-            Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
-              child: Row(
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Text(
+                  item.name,
+                  style: const TextStyle(
+                      fontSize: 28, fontWeight: FontWeight.bold),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Text(
+                  item.description,
+                  style: const TextStyle(fontSize: 16, height: 1.4),
+                ),
+              ),
+              const SizedBox(height: 16),
+              _buildSectionTitle('Details'),
+              _buildDetailTile('Remaining', '$remainingQuantity'),
+              _buildDetailTile('Price', '₹${item.price.toStringAsFixed(2)}'),
+              _buildDetailTile('Supplier', 'OLAND TEA'),
+              _buildSectionTitle('Sales Management'),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Card(
+                  elevation: 2,
+                  child: TableCalendar(
+                    firstDay: DateTime.utc(2020, 1, 1),
+                    lastDay: DateTime.utc(2030, 12, 31),
+                    focusedDay: _focusedDay,
+                    selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+                    onDaySelected: (selectedDay, focusedDay) {
+                      setState(() {
+                        _selectedDay = selectedDay;
+                        _focusedDay = focusedDay;
+                      });
+                      _loadSalesForSelectedDay();
+                    },
+                    calendarStyle: CalendarStyle(
+                      selectedDecoration: BoxDecoration(
+                        color: brandGreen,
+                        shape: BoxShape.circle,
+                      ),
+                      todayDecoration: BoxDecoration(
+                        color: brandGreen.withOpacity(0.5),
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Sales on ${_dateKey(_selectedDay ?? DateTime.now())}',
-                        style: const TextStyle(fontWeight: FontWeight.bold)),
-                    Row(children: [
-                      IconButton(
-                          icon: const Icon(Icons.remove_circle_outline),
-                          onPressed: _isAdjusting
-                              ? null
-                              : () => adjustSalesForDay(-1)),
-                      Text('$salesForSelectedDay',
-                          style: const TextStyle(fontSize: 16)),
-                      IconButton(
-                          icon: const Icon(Icons.add_circle_outline),
+                    Text(
+                      'Sales on ${_dateKey(_selectedDay ?? DateTime.now())}',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Row(
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.remove_circle_outline,
+                              color: brandGreen),
                           onPressed:
-                              _isAdjusting ? null : () => adjustSalesForDay(1)),
-                    ])
-                  ]),
-            ),
-
-            // Manual set remaining
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: ElevatedButton(
+                              _isAdjusting ? null : () => adjustSalesForDay(-1),
+                        ),
+                        Text('$salesForSelectedDay'),
+                        IconButton(
+                          icon:
+                              Icon(Icons.add_circle_outline, color: brandGreen),
+                          onPressed:
+                              _isAdjusting ? null : () => adjustSalesForDay(1),
+                        ),
+                      ],
+                    )
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: brandGreen,
+                    minimumSize: const Size.fromHeight(48),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
                   onPressed: setRemainingQuantityManually,
-                  child: const Text('Set remaining manually')),
-            ),
-
-            const SizedBox(height: 24),
-          ]),
+                  child: const Text(
+                    'Set Remaining Manually',
+                    style: TextStyle(fontSize: 16, color: Colors.white),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+            ],
+          ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Text(
+        title,
+        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+      ),
+    );
+  }
+
+  Widget _buildDetailTile(String title, String value) {
+    return ListTile(
+      dense: true,
+      title: Text(title),
+      trailing: Text(
+        value,
+        style: TextStyle(color: brandGreen, fontWeight: FontWeight.w600),
       ),
     );
   }
