@@ -68,11 +68,20 @@ class _ItemspageState extends State<Itemspage> {
     }
   }
 
+  Future<Map<String, String>> _getAuthHeaders() async {
+    final token = await storage.read(key: 'access_token');
+    return {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    };
+  }
+
   Future<void> fetchInventoryItems() async {
     final url = Uri.parse('$baseUrl/inventory/');
+    final headers = await _getAuthHeaders();
 
     try {
-      final response = await http.get(url);
+      final response = await http.get(url, headers: headers);
 
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
@@ -100,11 +109,12 @@ class _ItemspageState extends State<Itemspage> {
   Future<bool> adjustTodaySale(String id, int change) async {
     final today = _dateKey(DateTime.now());
     final url = Uri.parse('$baseUrl/inventory/$id/sales/adjust');
+    final headers = await _getAuthHeaders();
 
     try {
       final res = await http.patch(
         url,
-        headers: {'Content-Type': 'application/json'},
+        headers: headers,
         body: jsonEncode({'date': today, 'change': change}),
       );
 
@@ -174,7 +184,9 @@ class _ItemspageState extends State<Itemspage> {
                       textAlign: TextAlign.left,
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(
+                    height: 10,
+                  ),
                   Expanded(
                     child: ListView.builder(
                       padding: const EdgeInsets.symmetric(horizontal: 12),
