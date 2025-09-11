@@ -269,27 +269,19 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
                               ),
                             ),
                             const SizedBox(width: 12),
-                            // name + short label (kept short to keep card compact)
+
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(item.name,
-                                      style: const TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w700,
-                                      )),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    // keep a one-line preview here — full description shown in description card below
-                                    item.description,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      color: Colors.grey[700],
-                                      fontSize: 13,
-                                    ),
+                                  Center(
+                                    child: Text(item.name,
+                                        style: const TextStyle(
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.w700,
+                                        )),
                                   ),
+                                  //const SizedBox(height: 4),
                                 ],
                               ),
                             ),
@@ -324,15 +316,17 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
                 ],
               ),
 
-              const SizedBox(height: 56), // space for overlapping card
+              const SizedBox(height: 56),
 
-              // ---------- Full Description card ----------
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Card(
-                  elevation: 0,
+                  color: const Color(0xFFEAF9F0), // subtle greenish background
+                  elevation: 8, // a bit more lift
+                  shadowColor: Colors.black12, // soft shadow
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14)),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 16, vertical: 14),
@@ -356,7 +350,6 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
 
               const SizedBox(height: 18),
 
-              // ---------- Details chips — aligned and same height ----------
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Row(
@@ -381,7 +374,6 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
 
               const SizedBox(height: 18),
 
-              // ---------- Calendar + controls inside a card ----------
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Card(
@@ -390,7 +382,6 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
                       borderRadius: BorderRadius.circular(cornerRadius)),
                   child: Column(
                     children: [
-                      // small header row inside the card
                       Padding(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 14, vertical: 12),
@@ -455,7 +446,7 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
                         ),
                       ),
 
-                      // sales row with animated value and controls
+                      const Divider(height: 1, thickness: 1),
                       Padding(
                         padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
                         child: Row(
@@ -467,7 +458,6 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
                                     fontWeight: FontWeight.w600)),
                             Row(
                               children: [
-                                // decrement
                                 _iconPillButton(
                                   icon: Icons.remove,
                                   color: brandGreen,
@@ -476,7 +466,6 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
                                       : () => adjustSalesForDay(-1),
                                 ),
                                 const SizedBox(width: 10),
-                                // animated sales value
                                 Container(
                                   width: 56,
                                   height: 40,
@@ -501,7 +490,6 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
                                   ),
                                 ),
                                 const SizedBox(width: 10),
-                                // increment
                                 _iconPillButton(
                                   icon: Icons.add,
                                   color: brandGreen,
@@ -521,7 +509,6 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
 
               const SizedBox(height: 18),
 
-              // ---------- CTA: set remaining manually ----------
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: ElevatedButton(
@@ -547,7 +534,6 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
     );
   }
 
-  // small round icon-pill used for + / - buttons
   Widget _iconPillButton(
       {required IconData icon, required Color color, VoidCallback? onTap}) {
     return GestureDetector(
@@ -557,8 +543,8 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
         elevation: 1,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         child: Container(
-          width: 44,
-          height: 44,
+          width: 30,
+          height: 30,
           alignment: Alignment.center,
           decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
           child: Icon(icon, color: color, size: 22),
@@ -567,7 +553,6 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
     );
   }
 
-  // fixed-height chip to ensure alignment
   Widget _infoChipFixed(
       {required IconData icon, required String title, required String value}) {
     const double chipHeight = 90;
