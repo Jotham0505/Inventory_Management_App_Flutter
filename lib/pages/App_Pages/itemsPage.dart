@@ -1,4 +1,3 @@
-// lib/pages/App_Pages/itemsPage.dart
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -15,10 +14,12 @@ class Itemspage extends StatefulWidget {
 }
 
 class _ItemspageState extends State<Itemspage> {
-  final FlutterSecureStorage storage = FlutterSecureStorage();
+  final FlutterSecureStorage storage = const FlutterSecureStorage();
   String? userEmail;
   bool isLoading = true;
   List<InventoryItem> items = [];
+  List<InventoryItem> filteredItems = [];
+  String searchQuery = '';
 
   final String baseUrl = 'http://192.168.137.1:8000/api';
 
@@ -29,51 +30,29 @@ class _ItemspageState extends State<Itemspage> {
     fetchInventoryItems();
   }
 
-  Future<void> fetchUserInfo() async {
-    final token = await storage.read(key: 'access_token');
-
-    if (token == null) {
-      setState(() {
-        userEmail = "No token found";
-        isLoading = false;
-      });
-      return;
-    }
-
-    final url = Uri.parse('$baseUrl/auth/me');
-
-    try {
-      final response = await http.get(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        setState(() {
-          userEmail = data['email'];
-        });
-      } else {
-        setState(() {
-          userEmail = "Failed to fetch user info";
-        });
-      }
-    } catch (e) {
-      setState(() {
-        userEmail = "Error: $e";
-      });
-    }
-  }
-
   Future<Map<String, String>> _getAuthHeaders() async {
     final token = await storage.read(key: 'access_token');
     return {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer $token',
+      if (token != null) 'Authorization': 'Bearer $token',
     };
+  }
+
+  Future<void> fetchUserInfo() async {
+    final url = Uri.parse('$baseUrl/auth/me');
+    final headers = await _getAuthHeaders();
+
+    try {
+      final response = await http.get(url, headers: headers);
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        setState(() => userEmail = data['email']);
+      } else {
+        setState(() => userEmail = 'Failed to fetch user info');
+      }
+    } catch (e) {
+      setState(() => userEmail = 'Error: $e');
+    }
   }
 
   Future<void> fetchInventoryItems() async {
@@ -82,30 +61,25 @@ class _ItemspageState extends State<Itemspage> {
 
     try {
       final response = await http.get(url, headers: headers);
-
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
         setState(() {
           items = data.map((json) => InventoryItem.fromJson(json)).toList();
+          filteredItems = items;
           isLoading = false;
         });
       } else {
-        setState(() {
-          isLoading = false;
-        });
-        debugPrint("Failed to fetch inventory items: ${response.statusCode}");
+        debugPrint('Failed to fetch inventory items: ${response.statusCode}');
+        setState(() => isLoading = false);
       }
     } catch (e) {
-      setState(() {
-        isLoading = false;
-      });
-      debugPrint("Error fetching items: $e");
+      debugPrint('Error fetching items: $e');
+      setState(() => isLoading = false);
     }
   }
 
   String _dateKey(DateTime d) => d.toIso8601String().split('T')[0];
 
-  // Records a sale for TODAY by calling sales.adjust with date=today
   Future<bool> adjustTodaySale(String id, int change) async {
     final today = _dateKey(DateTime.now());
     final url = Uri.parse('$baseUrl/inventory/$id/sales/adjust');
@@ -117,14 +91,10 @@ class _ItemspageState extends State<Itemspage> {
         headers: headers,
         body: jsonEncode({'date': today, 'change': change}),
       );
+      if (res.statusCode == 200) return true;
 
-      if (res.statusCode == 200) {
-        return true;
-      } else {
-        debugPrint(
-            'Failed to adjust today sale: ${res.statusCode} - ${res.body}');
-        return false;
-      }
+      debugPrint('Adjust sale failed: ${res.statusCode} - ${res.body}');
+      return false;
     } catch (e) {
       debugPrint('Error adjusting today sale: $e');
       return false;
@@ -132,28 +102,77 @@ class _ItemspageState extends State<Itemspage> {
   }
 
   void changeQuantity(int index, int delta) async {
-    final item = items[index];
+    final item = filteredItems[index];
     final newQty = item.quantity + delta;
     if (newQty < 0) return;
 
-    // Optimistic update in UI
-    setState(() => items[index].quantity = newQty);
+    final originalQty = item.quantity;
+    setState(() => filteredItems[index].quantity = newQty);
 
     final ok = await adjustTodaySale(item.id, delta);
     if (!ok) {
-      // revert on failure and show message
-      setState(() => items[index].quantity = item.quantity);
+      setState(() => filteredItems[index].quantity = originalQty);
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Failed to update stock')));
     } else {
-      // refresh from server to ensure consistency
       await fetchInventoryItems();
     }
+  }
+
+  void _filterItems(String query) {
+    final lowerQuery = query.toLowerCase();
+    setState(() {
+      searchQuery = query;
+      filteredItems = items.where((item) {
+        return item.name.toLowerCase().contains(lowerQuery) ||
+            item.description.toLowerCase().contains(lowerQuery);
+      }).toList();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const Additemspage()),
+          );
+        },
+        backgroundColor: const Color(0xFF17CF73),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: const Icon(Icons.add, color: Colors.white),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      bottomNavigationBar: BottomAppBar(
+        color: Colors.grey[100],
+        elevation: 8,
+        shape: const CircularNotchedRectangle(),
+        notchMargin: 8.0,
+        child: SizedBox(
+          height: 60,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.home_rounded,
+                    color: Colors.black, size: 26),
+                onPressed: () {
+                  // navigate to home
+                },
+              ),
+              const SizedBox(width: 48),
+              IconButton(
+                icon: const Icon(Icons.person, color: Colors.black, size: 26),
+                onPressed: () {
+                  // navigate to profile
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : SafeArea(
@@ -161,9 +180,9 @@ class _ItemspageState extends State<Itemspage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 25),
-                  Center(
+                  const Center(
                     child: Text(
-                      "Inventory",
+                      'Inventory',
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
@@ -172,106 +191,148 @@ class _ItemspageState extends State<Itemspage> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Text(
-                      "All Items",
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'Epilogue',
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: TextField(
+                      onChanged: _filterItems,
+                      decoration: InputDecoration(
+                        hintText: 'Search items...',
+                        prefixIcon: const Icon(Icons.search),
+                        filled: true,
+                        fillColor: Colors.grey[100],
+                        contentPadding: EdgeInsets.zero,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
                       ),
-                      textAlign: TextAlign.left,
                     ),
                   ),
-                  const SizedBox(
-                    height: 10,
-                  ),
+                  const SizedBox(height: 15),
                   Expanded(
                     child: ListView.builder(
                       padding: const EdgeInsets.symmetric(horizontal: 12),
-                      itemCount: items.length,
+                      itemCount: filteredItems.length,
                       itemBuilder: (context, index) {
-                        final item = items[index];
-                        return Card(
-                          margin: const EdgeInsets.symmetric(
-                              vertical: 6, horizontal: 4),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10)),
-                          elevation: 2,
-                          child: ListTile(
-                            contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 8),
-                            leading: Image.asset('assets/item1.png',
-                                width: 40, height: 40, fit: BoxFit.cover),
-                            title: Text(
-                              item.name,
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 15,
-                                  fontFamily: 'Epilogue'),
-                            ),
-                            subtitle: Text(
-                              item.description,
-                              style: TextStyle(
-                                fontWeight: FontWeight.w500,
-                                fontSize: 13,
-                                fontFamily: 'Epilogue',
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                IconButton(
-                                    icon:
-                                        const Icon(Icons.remove_circle_outline),
-                                    onPressed: () => changeQuantity(index, -1)),
-                                Text('${item.quantity}',
-                                    style: const TextStyle(
-                                        fontSize: 14, fontFamily: 'Epilogue')),
-                                IconButton(
-                                    icon: const Icon(Icons.add_circle_outline),
-                                    onPressed: () => changeQuantity(index, 1)),
-                              ],
-                            ),
-                            onTap: () async {
-                              // go to details and refresh after returning
-                              await Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => ItemDetailsPage(
-                                        item: item,
-                                        imagePath: 'assets/item1.png')),
-                              );
-                              await fetchInventoryItems();
-                            },
-                          ),
-                        );
+                        final item = filteredItems[index];
+                        return _buildItemCard(item, index);
                       },
                     ),
                   ),
                 ],
               ),
             ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const [
-          BottomNavigationBarItem(
-              icon: Icon(Icons.home_rounded, size: 24, color: Colors.black),
-              label: 'Home'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.add, size: 24, color: Colors.black),
-              label: 'Add'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.person, size: 24, color: Colors.black),
-              label: 'Profile'),
+    );
+  }
+
+  Widget _buildItemCard(InventoryItem item, int index) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.white, Colors.grey[50]!],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
         ],
-        onTap: (index) {
-          if (index == 1) {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => Additemspage()));
-          }
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(20),
+        onTap: () async {
+          await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ItemDetailsPage(
+                item: item,
+                imagePath: 'assets/item1.png',
+              ),
+            ),
+          );
+          await fetchInventoryItems();
         },
+        child: Padding(
+          padding: const EdgeInsets.all(14.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: Image.asset(
+                  'assets/item1.png',
+                  width: 60,
+                  height: 60,
+                  fit: BoxFit.cover,
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      item.name,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 18,
+                        fontFamily: 'Epilogue',
+                      ),
+                    ),
+                    if (item.description.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4.0),
+                        child: Text(
+                          item.description,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w400,
+                            fontSize: 14,
+                            color: Colors.grey[600],
+                            fontFamily: 'Epilogue',
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 10),
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(30),
+                  color: Colors.grey[100],
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.remove, size: 20),
+                      onPressed: () => changeQuantity(index, -1),
+                    ),
+                    Text(
+                      '${item.quantity}',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        fontFamily: 'Epilogue',
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.add, size: 20),
+                      onPressed: () => changeQuantity(index, 1),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

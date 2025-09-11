@@ -1,4 +1,3 @@
-// lib/pages/App_Pages/itemDetailPage.dart
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -101,22 +100,15 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
 
       if (res.statusCode == 200) {
         final jsonBody = jsonDecode(res.body);
+        final qty = jsonBody['quantity'];
+        final int serverQty =
+            qty is int ? qty : int.tryParse(qty.toString()) ?? prevRemaining;
 
-        final qtyRaw = jsonBody['quantity'];
-        final int serverQty = qtyRaw is int
-            ? qtyRaw
-            : (qtyRaw is num
-                ? qtyRaw.toInt()
-                : int.tryParse(qtyRaw?.toString() ?? '') ?? remainingQuantity);
-
-        final salesMapRaw = (jsonBody['sales'] ?? {}) as Map<String, dynamic>;
-        final dynamic salesValRaw = salesMapRaw[dateStr];
-        final int serverSales = salesValRaw is int
-            ? salesValRaw
-            : (salesValRaw is num
-                ? salesValRaw.toInt()
-                : int.tryParse(salesValRaw?.toString() ?? '') ??
-                    salesForSelectedDay);
+        final salesMap = (jsonBody['sales'] ?? {}) as Map<String, dynamic>;
+        final salesVal = salesMap[dateStr];
+        final int serverSales = salesVal is int
+            ? salesVal
+            : int.tryParse(salesVal.toString()) ?? prevSales;
 
         setState(() {
           remainingQuantity = serverQty;
@@ -149,18 +141,21 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
     final result = await showDialog<String?>(
       context: context,
       builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         title: const Text('Set Remaining Quantity'),
         content: TextField(
           controller: controller,
           keyboardType: TextInputType.number,
-          decoration: const InputDecoration(hintText: 'Enter remaining boxes'),
+          decoration:
+              const InputDecoration(hintText: 'Enter remaining quantity'),
         ),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
-          TextButton(
+          ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: brandGreen),
               onPressed: () => Navigator.pop(ctx, controller.text),
-              child: Text('Set', style: TextStyle(color: brandGreen))),
+              child: const Text('Set', style: TextStyle(color: Colors.white))),
         ],
       ),
     );
@@ -196,50 +191,56 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
     final item = widget.item;
 
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: Colors.grey[50],
       body: SafeArea(
         child: SingleChildScrollView(
+          padding: const EdgeInsets.only(bottom: 24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // header image
               Hero(
                 tag: item.id,
                 child: ClipRRect(
                   borderRadius:
-                      const BorderRadius.vertical(bottom: Radius.circular(20)),
+                      const BorderRadius.vertical(bottom: Radius.circular(24)),
                   child: Image.asset(
                     widget.imagePath,
                     width: double.infinity,
-                    height: 250,
+                    height: 240,
                     fit: BoxFit.cover,
                   ),
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(16),
-                child: Text(
-                  item.name,
-                  style: const TextStyle(
-                      fontSize: 28, fontWeight: FontWeight.bold),
-                ),
+                padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
+                child: Text(item.name,
+                    style: const TextStyle(
+                        fontSize: 28, fontWeight: FontWeight.bold)),
               ),
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                child: Text(item.description,
+                    style: TextStyle(
+                        fontSize: 16, height: 1.5, color: Colors.grey[800])),
+              ),
+
+              _sectionTitle('Details'),
+              _infoCard([
+                _detailRow('Remaining', '$remainingQuantity'),
+                _detailRow('Price', '₹${item.price.toStringAsFixed(2)}'),
+                _detailRow('Supplier', 'OLAND TEA'),
+              ]),
+
+              _sectionTitle('Sales Management'),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Text(
-                  item.description,
-                  style: const TextStyle(fontSize: 16, height: 1.4),
-                ),
-              ),
-              const SizedBox(height: 16),
-              _buildSectionTitle('Details'),
-              _buildDetailTile('Remaining', '$remainingQuantity'),
-              _buildDetailTile('Price', '₹${item.price.toStringAsFixed(2)}'),
-              _buildDetailTile('Supplier', 'OLAND TEA'),
-              _buildSectionTitle('Sales Management'),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
                 child: Card(
-                  elevation: 2,
+                  elevation: 3,
+                  shadowColor: Colors.black12,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16)),
                   child: TableCalendar(
                     firstDay: DateTime.utc(2020, 1, 1),
                     lastDay: DateTime.utc(2030, 12, 31),
@@ -258,35 +259,39 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
                         shape: BoxShape.circle,
                       ),
                       todayDecoration: BoxDecoration(
-                        color: brandGreen.withOpacity(0.5),
+                        color: brandGreen.withOpacity(0.4),
                         shape: BoxShape.circle,
                       ),
                     ),
                   ),
                 ),
               ),
+
               Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      'Sales on ${_dateKey(_selectedDay ?? DateTime.now())}',
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
+                    Text('Sales on ${_dateKey(_selectedDay ?? DateTime.now())}',
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 16)),
                     Row(
                       children: [
                         IconButton(
                           icon: Icon(Icons.remove_circle_outline,
-                              color: brandGreen),
+                              color: brandGreen, size: 28),
                           onPressed:
                               _isAdjusting ? null : () => adjustSalesForDay(-1),
                         ),
-                        Text('$salesForSelectedDay'),
+                        Text('$salesForSelectedDay',
+                            style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: brandGreen)),
                         IconButton(
-                          icon:
-                              Icon(Icons.add_circle_outline, color: brandGreen),
+                          icon: Icon(Icons.add_circle_outline,
+                              color: brandGreen, size: 28),
                           onPressed:
                               _isAdjusting ? null : () => adjustSalesForDay(1),
                         ),
@@ -300,10 +305,9 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: brandGreen,
-                    minimumSize: const Size.fromHeight(48),
+                    minimumSize: const Size.fromHeight(50),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                        borderRadius: BorderRadius.circular(14)),
                   ),
                   onPressed: setRemainingQuantityManually,
                   child: const Text(
@@ -312,7 +316,6 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
                   ),
                 ),
               ),
-              const SizedBox(height: 24),
             ],
           ),
         ),
@@ -320,24 +323,32 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
     );
   }
 
-  Widget _buildSectionTitle(String title) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Text(
-        title,
-        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-      ),
-    );
-  }
+  Widget _sectionTitle(String title) => Padding(
+        padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
+        child: Text(title,
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+      );
 
-  Widget _buildDetailTile(String title, String value) {
-    return ListTile(
-      dense: true,
-      title: Text(title),
-      trailing: Text(
-        value,
-        style: TextStyle(color: brandGreen, fontWeight: FontWeight.w600),
-      ),
-    );
-  }
+  Widget _infoCard(List<Widget> children) => Card(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        elevation: 3,
+        shadowColor: Colors.black12,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: Column(children: children),
+      );
+
+  Widget _detailRow(String title, String value) => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(title, style: const TextStyle(fontSize: 16)),
+            Text(value,
+                style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: brandGreen)),
+          ],
+        ),
+      );
 }
