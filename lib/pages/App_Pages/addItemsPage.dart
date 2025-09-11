@@ -15,8 +15,7 @@ class _AdditemspageState extends State<Additemspage> {
   final TextEditingController priceController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
 
-  final String apiUrl =
-      "http://192.168.137.1:8000/api/inventory/"; // Updated endpoint
+  final String apiUrl = "http://192.168.137.1:8000/api/inventory/";
 
   Future<void> addItem() async {
     final Map<String, dynamic> itemData = {
@@ -35,7 +34,7 @@ class _AdditemspageState extends State<Additemspage> {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Item added successfully!")),
+          const SnackBar(content: Text("Item added successfully!")),
         );
         Navigator.pop(context);
       } else {
@@ -53,63 +52,71 @@ class _AdditemspageState extends State<Additemspage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
+      backgroundColor: const Color(0xFFF9F6FB), // soft background
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 25),
+              // header
               Row(
                 children: [
                   IconButton(
                     icon: const Icon(Icons.arrow_back_ios_new, size: 20),
                     onPressed: () => Navigator.pop(context),
                   ),
-                  const SizedBox(width: 60),
-                  const Center(
-                    child: Text(
-                      "Add New Item",
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'Epilogue',
-                      ),
+                  const Spacer(),
+                  const Text(
+                    "Add New Item",
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Epilogue',
                     ),
                   ),
+                  const Spacer(flex: 2),
                 ],
               ),
-              const SizedBox(height: 15),
+              const SizedBox(height: 25),
+
+              // form fields
               buildLabel("Item Name"),
               buildTextField(itemNameController, "Enter item name"),
               const SizedBox(height: 20),
+
               buildLabel("Quantity"),
               buildTextField(quantityController, "Enter quantity",
                   isNumber: true),
               const SizedBox(height: 20),
+
               buildLabel("Price"),
               buildTextField(priceController, "Enter price", isNumber: true),
               const SizedBox(height: 20),
+
               buildLabel("Description"),
               buildTextField(descriptionController, "Enter description",
-                  maxLines: 6),
+                  maxLines: 5),
               const SizedBox(height: 40),
-              Center(
-                child: TextButton(
+
+              // Save button
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
                   onPressed: addItem,
-                  style: TextButton.styleFrom(
-                    backgroundColor: const Color(0XFF17CF73),
-                    foregroundColor: Colors.black,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 140, vertical: 15),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF17CF73),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(14),
                     ),
+                    elevation: 2,
                   ),
                   child: const Text(
                     'Save Item',
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 16,
                       fontWeight: FontWeight.bold,
                       fontFamily: 'Epilogue',
                     ),
@@ -129,8 +136,8 @@ class _AdditemspageState extends State<Additemspage> {
       child: Text(
         text,
         style: const TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
           fontFamily: 'Epilogue',
         ),
       ),
@@ -140,24 +147,21 @@ class _AdditemspageState extends State<Additemspage> {
   Widget buildTextField(TextEditingController controller, String hintText,
       {bool isNumber = false, int maxLines = 1}) {
     return Container(
-      width: double.infinity,
       decoration: BoxDecoration(
-        color: const Color.fromARGB(255, 217, 243, 221),
-        borderRadius: BorderRadius.circular(8.0),
+        color: const Color.fromARGB(255, 217, 243, 221), // pale green
+        borderRadius: BorderRadius.circular(12.0),
       ),
       child: TextField(
         controller: controller,
         keyboardType: isNumber ? TextInputType.number : TextInputType.text,
         maxLines: maxLines,
+        style: const TextStyle(fontSize: 14, fontFamily: 'Epilogue'),
         decoration: InputDecoration(
           hintText: hintText,
           border: InputBorder.none,
           contentPadding:
               const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14),
-          hintStyle: const TextStyle(
-            fontFamily: 'Epilogue',
-            color: Colors.grey,
-          ),
+          hintStyle: TextStyle(color: Colors.grey[600]),
         ),
       ),
     );

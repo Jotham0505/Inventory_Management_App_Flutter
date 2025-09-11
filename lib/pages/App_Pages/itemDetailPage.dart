@@ -19,11 +19,14 @@ class ItemDetailsPage extends StatefulWidget {
 }
 
 class _ItemDetailsPageState extends State<ItemDetailsPage> {
-  final Color brandGreen = const Color(0xFF17CF73);
+  // Primary brand green and soft background greens used for UI
+  static const Color brandGreen = Color(0xFF17CF73);
+  static const Color softMint = Color(0xFFEAF9F0);
+  static const double cornerRadius = 16.0;
 
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
-  int remainingQuantity = 0;
+  late int remainingQuantity;
   int salesForSelectedDay = 0;
   bool _isAdjusting = false;
 
@@ -85,6 +88,7 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
     final prevRemaining = remainingQuantity;
     final prevSales = salesForSelectedDay;
 
+    // optimistic UI
     setState(() {
       remainingQuantity = (remainingQuantity - change).clamp(0, 1 << 31);
       salesForSelectedDay = (salesForSelectedDay + change).clamp(0, 1 << 31);
@@ -115,6 +119,7 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
           salesForSelectedDay = serverSales;
         });
       } else {
+        // revert and notify
         setState(() {
           remainingQuantity = prevRemaining;
           salesForSelectedDay = prevSales;
@@ -128,8 +133,9 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
         remainingQuantity = prevRemaining;
         salesForSelectedDay = prevSales;
       });
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Network error')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Network error')),
+      );
     } finally {
       setState(() => _isAdjusting = false);
     }
@@ -153,9 +159,10 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
           TextButton(
               onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
           ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: brandGreen),
-              onPressed: () => Navigator.pop(ctx, controller.text),
-              child: const Text('Set', style: TextStyle(color: Colors.white))),
+            style: ElevatedButton.styleFrom(backgroundColor: brandGreen),
+            onPressed: () => Navigator.pop(ctx, controller.text),
+            child: const Text('Set', style: TextStyle(color: Colors.white)),
+          ),
         ],
       ),
     );
@@ -191,131 +198,348 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
     final item = widget.item;
 
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: const Color(0xFFF7F7FA),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.only(bottom: 24),
+          padding: const EdgeInsets.only(bottom: 28),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // header image
-              Hero(
-                tag: item.id,
-                child: ClipRRect(
-                  borderRadius:
-                      const BorderRadius.vertical(bottom: Radius.circular(24)),
-                  child: Image.asset(
-                    widget.imagePath,
-                    width: double.infinity,
-                    height: 240,
-                    fit: BoxFit.cover,
+              // ---------- Header with hero image + gradient overlay ----------
+              Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Hero(
+                    tag: item.id,
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.vertical(
+                          bottom: Radius.circular(24)),
+                      child: Image.asset(
+                        widget.imagePath,
+                        width: double.infinity,
+                        height: 260,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
-                child: Text(item.name,
-                    style: const TextStyle(
-                        fontSize: 28, fontWeight: FontWeight.bold)),
-              ),
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                child: Text(item.description,
-                    style: TextStyle(
-                        fontSize: 16, height: 1.5, color: Colors.grey[800])),
+
+                  // Gradient overlay to make white text readable
+                  Positioned.fill(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: const BorderRadius.vertical(
+                            bottom: Radius.circular(24)),
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.transparent,
+                            Colors.black.withOpacity(0.18)
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // Overlapping card with title/subtitle & chip
+                  Positioned(
+                    left: 16,
+                    right: 16,
+                    bottom: -40,
+                    child: Material(
+                      elevation: 6,
+                      borderRadius: BorderRadius.circular(18),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 14),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(18),
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            // thumbnail
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: Image.asset(
+                                widget.imagePath,
+                                width: 62,
+                                height: 62,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            // name + short label (kept short to keep card compact)
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(item.name,
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w700,
+                                      )),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    // keep a one-line preview here — full description shown in description card below
+                                    item.description,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      color: Colors.grey[700],
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            // Remaining chip
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: softMint,
+                                borderRadius: BorderRadius.circular(999),
+                              ),
+                              child: Column(
+                                children: [
+                                  Text('Remaining',
+                                      style: TextStyle(
+                                          fontSize: 11,
+                                          color: Colors.grey[800])),
+                                  const SizedBox(height: 2),
+                                  Text('$remainingQuantity',
+                                      style: const TextStyle(
+                                          color: brandGreen,
+                                          fontWeight: FontWeight.bold)),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
 
-              _sectionTitle('Details'),
-              _infoCard([
-                _detailRow('Remaining', '$remainingQuantity'),
-                _detailRow('Price', '₹${item.price.toStringAsFixed(2)}'),
-                _detailRow('Supplier', 'OLAND TEA'),
-              ]),
+              const SizedBox(height: 56), // space for overlapping card
 
-              _sectionTitle('Sales Management'),
+              // ---------- Full Description card ----------
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Card(
-                  elevation: 3,
-                  shadowColor: Colors.black12,
+                  elevation: 0,
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16)),
-                  child: TableCalendar(
-                    firstDay: DateTime.utc(2020, 1, 1),
-                    lastDay: DateTime.utc(2030, 12, 31),
-                    focusedDay: _focusedDay,
-                    selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
-                    onDaySelected: (selectedDay, focusedDay) {
-                      setState(() {
-                        _selectedDay = selectedDay;
-                        _focusedDay = focusedDay;
-                      });
-                      _loadSalesForSelectedDay();
-                    },
-                    calendarStyle: CalendarStyle(
-                      selectedDecoration: BoxDecoration(
-                        color: brandGreen,
-                        shape: BoxShape.circle,
-                      ),
-                      todayDecoration: BoxDecoration(
-                        color: brandGreen.withOpacity(0.4),
-                        shape: BoxShape.circle,
-                      ),
+                      borderRadius: BorderRadius.circular(14)),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 14),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('About',
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.w700)),
+                        const SizedBox(height: 8),
+                        Text(
+                          item.description,
+                          style: const TextStyle(
+                              fontSize: 14, height: 1.5, color: Colors.black87),
+                        ),
+                      ],
                     ),
                   ),
                 ),
               ),
 
+              const SizedBox(height: 18),
+
+              // ---------- Details chips — aligned and same height ----------
               Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Sales on ${_dateKey(_selectedDay ?? DateTime.now())}',
-                        style: const TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 16)),
-                    Row(
-                      children: [
-                        IconButton(
-                          icon: Icon(Icons.remove_circle_outline,
-                              color: brandGreen, size: 28),
-                          onPressed:
-                              _isAdjusting ? null : () => adjustSalesForDay(-1),
-                        ),
-                        Text('$salesForSelectedDay',
-                            style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: brandGreen)),
-                        IconButton(
-                          icon: Icon(Icons.add_circle_outline,
-                              color: brandGreen, size: 28),
-                          onPressed:
-                              _isAdjusting ? null : () => adjustSalesForDay(1),
-                        ),
-                      ],
-                    )
+                    _infoChipFixed(
+                        icon: Icons.inventory_2,
+                        title: 'Price',
+                        value: '₹${item.price.toStringAsFixed(2)}'),
+                    const SizedBox(width: 12),
+                    _infoChipFixed(
+                        icon: Icons.local_shipping,
+                        title: 'Supplier',
+                        value: 'OLAND TEA'),
+                    const SizedBox(width: 12),
+                    _infoChipFixed(
+                        icon: Icons.layers,
+                        title: 'Qty',
+                        value: '$remainingQuantity'),
                   ],
                 ),
               ),
+
+              const SizedBox(height: 18),
+
+              // ---------- Calendar + controls inside a card ----------
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: brandGreen,
-                    minimumSize: const Size.fromHeight(50),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14)),
-                  ),
-                  onPressed: setRemainingQuantityManually,
-                  child: const Text(
-                    'Set Remaining Manually',
-                    style: TextStyle(fontSize: 16, color: Colors.white),
+                child: Card(
+                  elevation: 3,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(cornerRadius)),
+                  child: Column(
+                    children: [
+                      // small header row inside the card
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 12),
+                        child: Row(
+                          children: [
+                            Text('Sales Management',
+                                style: TextStyle(
+                                    fontSize: 16, fontWeight: FontWeight.w700)),
+                            const Spacer(),
+                            // quick range pill
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 6),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: Colors.grey.shade300),
+                                color: Colors.white,
+                              ),
+                              child: const Text('2 weeks',
+                                  style: TextStyle(fontSize: 13)),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      // calendar
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: TableCalendar(
+                          firstDay: DateTime.utc(2020, 1, 1),
+                          lastDay: DateTime.utc(2030, 12, 31),
+                          focusedDay: _focusedDay,
+                          selectedDayPredicate: (day) =>
+                              isSameDay(_selectedDay, day),
+                          onDaySelected: (selectedDay, focusedDay) {
+                            setState(() {
+                              _selectedDay = selectedDay;
+                              _focusedDay = focusedDay;
+                            });
+                            _loadSalesForSelectedDay();
+                          },
+                          calendarStyle: CalendarStyle(
+                            selectedDecoration: BoxDecoration(
+                              color: brandGreen,
+                              shape: BoxShape.circle,
+                            ),
+                            todayDecoration: BoxDecoration(
+                              color: brandGreen.withOpacity(0.2),
+                              shape: BoxShape.circle,
+                            ),
+                            defaultTextStyle:
+                                const TextStyle(color: Colors.black87),
+                            weekendTextStyle:
+                                const TextStyle(color: Colors.black54),
+                          ),
+                          headerStyle: const HeaderStyle(
+                            formatButtonVisible: false,
+                            titleCentered: true,
+                            titleTextStyle:
+                                TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                        ),
+                      ),
+
+                      // sales row with animated value and controls
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                                'Sales on ${_dateKey(_selectedDay ?? DateTime.now())}',
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.w600)),
+                            Row(
+                              children: [
+                                // decrement
+                                _iconPillButton(
+                                  icon: Icons.remove,
+                                  color: brandGreen,
+                                  onTap: _isAdjusting
+                                      ? null
+                                      : () => adjustSalesForDay(-1),
+                                ),
+                                const SizedBox(width: 10),
+                                // animated sales value
+                                Container(
+                                  width: 56,
+                                  height: 40,
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[100],
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: AnimatedSwitcher(
+                                    duration: const Duration(milliseconds: 300),
+                                    transitionBuilder: (child, anim) =>
+                                        ScaleTransition(
+                                            scale: anim, child: child),
+                                    child: Text(
+                                      '$salesForSelectedDay',
+                                      key: ValueKey<int>(salesForSelectedDay),
+                                      style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w700,
+                                          color: brandGreen),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                // increment
+                                _iconPillButton(
+                                  icon: Icons.add,
+                                  color: brandGreen,
+                                  onTap: _isAdjusting
+                                      ? null
+                                      : () => adjustSalesForDay(1),
+                                ),
+                              ],
+                            )
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
+
+              const SizedBox(height: 18),
+
+              // ---------- CTA: set remaining manually ----------
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: ElevatedButton(
+                  onPressed: setRemainingQuantityManually,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: brandGreen,
+                    foregroundColor: Colors.white,
+                    minimumSize: const Size.fromHeight(54),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14)),
+                    elevation: 3,
+                  ),
+                  child: const Text('Set Remaining Manually',
+                      style: TextStyle(fontSize: 16)),
+                ),
+              ),
+
+              const SizedBox(height: 22),
             ],
           ),
         ),
@@ -323,32 +547,76 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
     );
   }
 
-  Widget _sectionTitle(String title) => Padding(
-        padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
-        child: Text(title,
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-      );
+  // small round icon-pill used for + / - buttons
+  Widget _iconPillButton(
+      {required IconData icon, required Color color, VoidCallback? onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Material(
+        color: Colors.white,
+        elevation: 1,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Container(
+          width: 44,
+          height: 44,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
+          child: Icon(icon, color: color, size: 22),
+        ),
+      ),
+    );
+  }
 
-  Widget _infoCard(List<Widget> children) => Card(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        elevation: 3,
-        shadowColor: Colors.black12,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: Column(children: children),
-      );
+  // fixed-height chip to ensure alignment
+  Widget _infoChipFixed(
+      {required IconData icon, required String title, required String value}) {
+    const double chipHeight = 90;
+    //const double chipWidth = 60;
 
-  Widget _detailRow(String title, String value) => Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(title, style: const TextStyle(fontSize: 16)),
-            Text(value,
-                style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: brandGreen)),
+    return Expanded(
+      child: Container(
+        height: chipHeight,
+        //width: chipWidth,
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8)
           ],
         ),
-      );
+        child: Row(
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                  color: softMint, borderRadius: BorderRadius.circular(10)),
+              padding: const EdgeInsets.all(8),
+              child: Icon(icon, size: 20, color: brandGreen),
+            ),
+            const SizedBox(width: 6),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title,
+                      style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.black54,
+                          fontWeight: FontWeight.w600)),
+                  //const SizedBox(height: 6),
+
+                  Text(
+                    value,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w700, fontSize: 10),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
