@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:tea_app/models/inventory_item.dart';
+import 'package:tea_app/models/task_model.dart';
 import 'package:tea_app/pages/App_Pages/addItemsPage.dart';
 import 'package:tea_app/pages/App_Pages/itemDetailPage.dart';
+import 'package:tea_app/pages/App_Pages/profilePage.dart';
 
 class Itemspage extends StatefulWidget {
   const Itemspage({super.key});
@@ -166,7 +168,34 @@ class _ItemspageState extends State<Itemspage> {
               IconButton(
                 icon: const Icon(Icons.person, color: Colors.black, size: 26),
                 onPressed: () {
-                  // navigate to profile
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => ProfilePage(
+                                profileImageUrl: 'https://example.com/logo.png',
+                                name: 'John Doe',
+                                role: 'Admin',
+                                email: 'john@example.com',
+                                phone: '+91 9876543210',
+                                address: '123 Tea Street, Kochi',
+                                lastLogin: '2025-09-13 09:30 AM',
+                                recentActions: const [
+                                  'Added new item: Green Tea',
+                                  'Updated stock for Masala Tea',
+                                  'Processed Order #1234',
+                                ],
+                                itemsAdded: 25,
+                                ordersProcessed: 102,
+                                salesContributed: 45200.75,
+                                toDoList: [
+                                  Task(
+                                      title: 'Prepare order for School A',
+                                      dueDate: DateTime(2025, 9, 15)),
+                                  Task(
+                                      title: 'Restock Milk Powder',
+                                      dueDate: DateTime(2025, 9, 17)),
+                                ],
+                              )));
                 },
               ),
             ],
@@ -251,7 +280,7 @@ class _ItemspageState extends State<Itemspage> {
             MaterialPageRoute(
               builder: (context) => ItemDetailsPage(
                 item: item,
-                imagePath: 'assets/item1.png',
+                imagePath: 'assets/Login.png',
               ),
             ),
           );

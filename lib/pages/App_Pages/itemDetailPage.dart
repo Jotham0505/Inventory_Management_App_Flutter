@@ -204,7 +204,6 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
           padding: const EdgeInsets.only(bottom: 28),
           child: Column(
             children: [
-              // ---------- Header with hero image + gradient overlay ----------
               Stack(
                 clipBehavior: Clip.none,
                 children: [
@@ -222,7 +221,6 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
                     ),
                   ),
 
-                  // Gradient overlay to make white text readable
                   Positioned.fill(
                     child: Container(
                       decoration: BoxDecoration(
@@ -315,9 +313,7 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
                   ),
                 ],
               ),
-
               const SizedBox(height: 56),
-
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Card(
@@ -347,9 +343,7 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
                   ),
                 ),
               ),
-
               const SizedBox(height: 18),
-
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Row(
@@ -371,9 +365,7 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
                   ],
                 ),
               ),
-
               const SizedBox(height: 18),
-
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Card(
@@ -506,9 +498,7 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
                   ),
                 ),
               ),
-
               const SizedBox(height: 18),
-
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: ElevatedButton(
@@ -525,7 +515,6 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
                       style: TextStyle(fontSize: 16)),
                 ),
               ),
-
               const SizedBox(height: 22),
             ],
           ),
