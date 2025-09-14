@@ -111,7 +111,7 @@ class _ItemspageState extends State<Itemspage> {
     final originalQty = item.quantity;
     setState(() => filteredItems[index].quantity = newQty);
 
-    final ok = await adjustTodaySale(item.id, delta);
+    final ok = await adjustTodaySale(item.id, -delta);
     if (!ok) {
       setState(() => filteredItems[index].quantity = originalQty);
       ScaffoldMessenger.of(context).showSnackBar(
