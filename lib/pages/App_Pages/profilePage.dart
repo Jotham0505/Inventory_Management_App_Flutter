@@ -850,7 +850,10 @@ class _ProfilePageState extends State<ProfilePage>
                     backgroundColor: Colors.white,
                     child: CircleAvatar(
                       radius: 48,
-                      backgroundImage: NetworkImage(widget.profileImageUrl),
+                      backgroundImage: Image.asset(
+                        'assets/tea logo 2.png',
+                        fit: BoxFit.cover,
+                      ).image,
                     ),
                   ),
                 ),

@@ -280,7 +280,7 @@ class _ItemspageState extends State<Itemspage> {
             MaterialPageRoute(
               builder: (context) => ItemDetailsPage(
                 item: item,
-                imagePath: 'assets/Login.png',
+                imagePath: 'assets/prod3.png', // same here as well
               ),
             ),
           );
@@ -294,7 +294,7 @@ class _ItemspageState extends State<Itemspage> {
               ClipRRect(
                 borderRadius: BorderRadius.circular(16),
                 child: Image.asset(
-                  'assets/item1.png',
+                  'assets/prod3.png', // while working on the backend, give an option to upload pic of the product
                   width: 60,
                   height: 60,
                   fit: BoxFit.cover,
