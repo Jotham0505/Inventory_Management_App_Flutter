@@ -314,7 +314,7 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
                 ],
               ),
               const SizedBox(height: 56),
-              Padding(
+              /*Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Card(
                   color: const Color(0xFFEAF9F0), // subtle greenish background
@@ -329,21 +329,26 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('About',
-                            style: TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.w700)),
+                        const Text(
+                          'About',
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.w700),
+                        ),
                         const SizedBox(height: 8),
                         Text(
                           item.description,
                           style: const TextStyle(
-                              fontSize: 14, height: 1.5, color: Colors.black87),
+                            fontSize: 14,
+                            height: 1.5,
+                            color: Colors.black87,
+                          ),
                         ),
                       ],
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 18),
+              ),*/
+              //const SizedBox(height: 18),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Row(
@@ -366,6 +371,7 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
                 ),
               ),
               const SizedBox(height: 18),
+
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Card(

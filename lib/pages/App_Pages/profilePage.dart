@@ -851,7 +851,7 @@ class _ProfilePageState extends State<ProfilePage>
                     child: CircleAvatar(
                       radius: 48,
                       backgroundImage: Image.asset(
-                        'assets/images/user_avatar.png',
+                        'assets/tea logo 2.png',
                         fit: BoxFit.cover,
                       ).image,
                     ),
